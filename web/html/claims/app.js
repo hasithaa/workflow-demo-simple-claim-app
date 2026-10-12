@@ -43,7 +43,7 @@ function render(claims) {
   known = new Map(all.map((c) => [c.claimId, c.status]));
   box.innerHTML = all.length ? all.map((c) => card(c, before && before.get(c.claimId) !== c.status)).join('')
     : '<div class="empty"><div class="big">🧾</div>No claims yet</div>';
-  box.querySelectorAll('[data-bill]').forEach((b) => b.addEventListener('click', () => uploadBill(b.dataset.bill)));
+  box.querySelectorAll('[data-bill]').forEach((b) => b.addEventListener('click', () => uploadBill(b.dataset.bill, b.dataset.workflow)));
   box.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => showBill(b.dataset.view, b.dataset.name)));
 }
 
@@ -63,7 +63,7 @@ function progress(status) {
 
 function card(c, changed) {
   const action = c.status === 'BILL_REQUIRED'
-    ? `<button class="btn primary" data-bill="${esc(c.claimId)}">Submit bill</button>`
+    ? `<button class="btn primary" data-bill="${esc(c.claimId)}" data-workflow="${esc(c.workflowId)}">Submit bill</button>`
     : c.billUrl ? `<button class="btn" data-view="${esc(c.billUrl)}" data-name="${esc(c.billName)}">View bill</button>` : '';
   const note = c.comment ? `<div class="note"><b>Manager:</b> ${esc(c.comment)}</div>` : '';
   return `<div class="card${changed ? ' fresh' : ''}" data-claim="${esc(c.claimId)}">
@@ -90,7 +90,7 @@ function newClaim() {
     const amount = Number(box.querySelector('#amount').value);
     if (!description || !(amount > 0)) return;
     e.submitter.disabled = true;
-    // The claim id is also the workflow instance id, so the bill can be sent to it later.
+    // The app picks the claim id; the workflow records its own id on the claim, for the bill to find it later.
     const claim = { claimId: `CLM-${String(Date.now()).slice(-5)}`, employee: user.username, description, amount };
     const res = await fetch('/api/claims', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(claim) });
@@ -106,7 +106,8 @@ function newClaim() {
   });
 }
 
-function uploadBill(claimId) {
+// The bill goes to the claim's own workflow, by the workflow id the claim record keeps.
+function uploadBill(claimId, workflowId) {
   const box = dialog(`<h3>Submit bill</h3><div class="meta">${esc(claimId)} is waiting for its bill.</div>
       <div class="drop" id="drop"><div>Drop the bill here, or</div>
         <button class="btn" type="button" id="choose" style="margin-top:8px">Choose file</button>
@@ -129,7 +130,7 @@ function uploadBill(claimId) {
     e.target.disabled = true;
     const fileUrl = `/files/${encodeURIComponent(claimId)}/${encodeURIComponent(file.name)}`;
     const stored = await fetch(fileUrl, { method: 'PUT', body: file });
-    const sent = stored.ok && await fetch(`/api/claims/${encodeURIComponent(claimId)}/bill`, { method: 'POST',
+    const sent = stored.ok && await fetch(`/api/claims/${encodeURIComponent(workflowId)}/bill`, { method: 'POST',
       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fileName: file.name, fileUrl }) });
     if (!sent || !sent.ok) {
       toast('The bill could not be uploaded', 'bad');

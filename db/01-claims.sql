@@ -2,6 +2,7 @@
 USE claims;
 CREATE TABLE IF NOT EXISTS claims (
     claim_id     VARCHAR(64)    PRIMARY KEY,
+    workflow_id  VARCHAR(255),
     employee     VARCHAR(255)   NOT NULL,
     description  VARCHAR(255)   NOT NULL,
     amount       DECIMAL(12, 2) NOT NULL,

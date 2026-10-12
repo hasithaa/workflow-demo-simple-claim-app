@@ -2,7 +2,8 @@ import ballerina/workflow;
 
 @workflow:Workflow
 function processClaim(workflow:Context ctx, Claim input, ProcessClaimData data) returns json|error {
-    () _ = check ctx->callActivity(createClaim, {claim: input});
+    string workflowId = check ctx.getWorkflowId();
+    () _ = check ctx->callActivity(createClaim, {claim: input, workflowId: workflowId});
     Bill bill = check wait data.bill;
     () _ = check ctx->callActivity(attachBill, {claimId: input.claimId, billInfo: bill});
     Decision decision = check ctx->awaitHumanTask("approveClaim", userRoles = "MANAGER", taskInput = {claimId: input.claimId, employee: input.employee, description: input.description, amount: input.amount, billName: bill.fileName, billUrl: bill.fileUrl}, title = "Approve expense claim");

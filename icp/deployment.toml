@@ -1,0 +1,27 @@
+# Integration Control Plane for the claim demo: MySQL for its data and console users, password sign-in (admin / admin).
+serverHost = "0.0.0.0"
+serverPort = 9446
+publicBaseUrl = "https://localhost:9446"
+schedulerIntervalSeconds = 60
+logLevel = "INFO"
+enableAuditLogging = true
+enableMetrics = true
+frontendJwtHMACSecret = "claim-demo-console-secret-at-least-32-characters-long"
+
+credentialsDbType = "mysql"
+credentialsDbHost = "mysql"
+credentialsDbPort = 3306
+credentialsDbName = "credentials_db"
+credentialsDbUser = "icp"
+credentialsDbPassword = "icp"
+
+[icp_server.storage]
+dbType = "mysql"
+dbHost = "mysql"
+dbPort = 3306
+dbName = "icp_db"
+dbUser = "icp"
+dbPassword = "icp"
+maxOpenConnections = 10
+minIdleConnections = 2
+heartbeatTimeoutSeconds = 30

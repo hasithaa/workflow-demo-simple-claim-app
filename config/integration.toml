@@ -1,0 +1,16 @@
+# The claims integration in docker compose. Running it from WSO2 Integrator instead: put the same values in
+# integration/claimapproval/Config.toml with dbHost = "localhost" and url = "localhost:7233".
+dbHost = "mysql"
+dbUser = "claims"
+dbPassword = "claims"
+dbName = "claims"
+
+[ballerina.workflow]
+mode = "LOCAL"
+url = "temporal:7233"
+
+[ballerina.workflow.management.rest]
+enableManagementApi = true
+port = 8234
+# The gateway (web) checks the session and forwards the user; the API is not published outside the compose network.
+enableBasicAuth = false

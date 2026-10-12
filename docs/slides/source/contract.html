@@ -1,0 +1,13 @@
+<section id="contract" data-transition="fade" style="background:#F4F2ED;color:#1B2430;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1;color:#1B2430">Who calls what</h2>
+<p style="font-size:32px;line-height:1.4;color:#4A5563">Two apps, two APIs. Neither app knows the steps of the process.</p>
+<table style="font-family:'IBM Plex Sans', Arial, sans-serif;font-size:26px;color:#1B2430">
+<tr><th style="width:16%">App</th><th style="width:44%">Call</th><th style="width:40%">What happens</th></tr>
+<tr><td style="color:#2F5BD3">Expenses</td><td>POST /claims</td><td>Claims API starts processClaim</td></tr>
+<tr><td style="color:#2F5BD3">Expenses</td><td>POST /claims/{id}/bill</td><td>The waiting workflow gets the bill</td></tr>
+<tr><td style="color:#2F5BD3">Expenses</td><td>GET /claims?employee=…</td><td>Claims API reads the claims DB</td></tr>
+<tr><td style="color:#1F7A6D">Approvals</td><td>GET /workflow/human-tasks</td><td>Tasks Jane may act on (MANAGER)</td></tr>
+<tr><td style="color:#1F7A6D">Approvals</td><td>POST /workflow/human-tasks/{id}/complete</td><td>The workflow continues with the decision</td></tr>
+</table>
+<aside>This is the whole contract between the apps and the integration. Expenses talks to the Claims API we write. Approvals talks to the Management API we get for free. The claim id is also the workflow instance id, so the bill route finds the right waiting workflow directly.</aside>
+</section>

@@ -1,0 +1,120 @@
+# The claim approval demo in one stack: `docker compose up -d --build`, then open http://localhost:8080.
+#
+#   web          the claims and admin contexts, sign-in and bill storage (nginx)   :8080
+#   integration  the claims integration built in WSO2 Integrator (Claims API, workflow, Management API)
+#   identity     username and password sign-in for the two contexts
+#   icp          WSO2 Integration Control Plane 2.1.0                               :9446 (admin / admin)
+#   temporal     the durable workflow runtime                                       :7233
+#   mysql        claims, users, ICP and Temporal data                               :3306
+#
+# To run the integration from WSO2 Integrator instead: `INTEGRATION_HOST=host.docker.internal docker compose up -d
+# --build --scale integration=0`, then Run it in the Integrator (see README).
+name: claim-demo
+
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot", "--silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  temporal:
+    image: temporalio/auto-setup:1.29.7
+    environment:
+      DB: mysql8
+      DB_PORT: 3306
+      MYSQL_SEEDS: mysql
+      MYSQL_USER: root
+      MYSQL_PWD: root
+      DEFAULT_NAMESPACE_RETENTION: 72h
+    ports:
+      - "7233:7233"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  icp:
+    build: ./icp
+    ports:
+      - "9446:9446"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # Mints the secret the integration registers with ICP; it exists only once ICP is running, so it cannot be baked in.
+  icp-seed:
+    build: ./seed
+    environment:
+      ICP_URL: https://icp:9446
+      INTEGRATIONS: claims
+    volumes:
+      - icp-secrets:/secrets
+    depends_on:
+      - icp
+
+  identity:
+    build:
+      context: .
+      dockerfile: docker/ballerina.Dockerfile
+      args:
+        SRC: identity
+    volumes:
+      - ./config/identity.toml:/app/config/Config.toml:ro
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  integration:
+    build:
+      context: .
+      dockerfile: docker/ballerina.Dockerfile
+      args:
+        SRC: integration
+        PKG: claimapproval
+    environment:
+      ICP_SECRET_FILE: /secrets/claims.secret
+      ICP_PROJECT: claims
+      ICP_INTEGRATION: claimapproval
+      ICP_RUNTIME_HOST_URL: http://integration
+    volumes:
+      - ./config/integration.toml:/app/config/Config.toml:ro
+      - icp-secrets:/secrets:ro
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      temporal:
+        condition: service_started
+      icp-seed:
+        condition: service_completed_successfully
+
+  web:
+    image: nginx:1.27-alpine
+    environment:
+      INTEGRATION_HOST: ${INTEGRATION_HOST:-integration}
+      IDENTITY_HOST: ${IDENTITY_HOST:-identity}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./web/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./web/nginx/40-seed-files.sh:/docker-entrypoint.d/40-seed-files.sh:ro
+      - ./web/html:/usr/share/nginx/html:ro
+      - ./web/seed-files:/seed-files:ro
+      - bills:/data/files
+    depends_on:
+      - identity
+
+volumes:
+  mysql-data:
+  bills:
+  icp-secrets:

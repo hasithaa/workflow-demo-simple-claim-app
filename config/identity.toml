@@ -1,0 +1,16 @@
+# The demo's users; passwords are hashed into the identity database on start.
+dbHost = "mysql"
+
+[[users]]
+username = "ann@example.com"
+password = "demo123"
+name = "Ann Lee"
+title = "Sales executive"
+roles = "EMPLOYEE"
+
+[[users]]
+username = "jane@example.com"
+password = "demo123"
+name = "Jane Moreno"
+title = "Sales manager"
+roles = "EMPLOYEE,MANAGER"

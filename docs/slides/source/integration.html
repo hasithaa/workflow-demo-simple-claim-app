@@ -1,0 +1,38 @@
+<section id="integration" data-transition="fade" style="background:#F4F2ED;color:#1B2430;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1;color:#1B2430">What we build in WSO2 Integrator</h2>
+<div style="display:flex;gap:32px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FBFAF7;border:2px solid #D9D4C8;border-radius:18px;padding:40px">
+<p style="font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8A5200">HTTP service</p>
+<h3 style="font-size:44px;font-weight:600;color:#1B2430">Claims API</h3>
+<div style="display:flex;flex-direction:column;gap:6px">
+<p style="font-size:24px;font-family:'JetBrains Mono', 'Courier New', monospace;color:#1B2430">POST /claims</p>
+<p style="font-size:24px;color:#4A5563">starts processClaim</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<p style="font-size:24px;font-family:'JetBrains Mono', 'Courier New', monospace;color:#1B2430">POST /claims/{id}/bill</p>
+<p style="font-size:24px;color:#4A5563">sends the bill event</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<p style="font-size:24px;font-family:'JetBrains Mono', 'Courier New', monospace;color:#1B2430">GET /claims</p>
+<p style="font-size:24px;color:#4A5563">reads the claims DB</p>
+</div>
+</div>
+<div style="width:600px;display:flex;flex-direction:column;gap:12px;background:#FBFAF7;border:3px solid #E8A33D;border-radius:18px;padding:40px">
+<p style="font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8A5200">Durable workflow</p>
+<h3 style="font-size:44px;font-weight:600;color:#1B2430;font-family:'JetBrains Mono', 'Courier New', monospace">processClaim</h3>
+<p style="font-size:26px;padding:12px 20px;border-radius:10px;background:#EEF0F3;color:#1B2430">1 · Record the claim: <b>BILL_REQUIRED</b></p>
+<p style="font-size:26px;padding:12px 20px;border-radius:10px;background:#F7E7CC;color:#1B2430">2 · Wait for the bill (event)</p>
+<p style="font-size:26px;padding:12px 20px;border-radius:10px;background:#EEF0F3;color:#1B2430">3 · Attach the bill: <b>IN_REVIEW</b></p>
+<p style="font-size:26px;padding:12px 20px;border-radius:10px;background:#F7E7CC;color:#1B2430">4 · Ask a MANAGER to approve (task)</p>
+<p style="font-size:26px;padding:12px 20px;border-radius:10px;background:#EEF0F3;color:#1B2430">5 · Record <b>APPROVED</b> or <b>REJECTED</b></p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FBFAF7;border:2px dashed #C98A1E;border-radius:18px;padding:40px">
+<p style="font-size:24px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#8A5200">Built in</p>
+<h3 style="font-size:44px;font-weight:600;color:#1B2430">Management API</h3>
+<p style="font-size:26px;line-height:1.4;color:#4A5563">Lists and completes the workflow's human tasks for the caller's role. The Approvals app uses it as is.</p>
+<p style="font-size:24px;font-family:'JetBrains Mono', 'Courier New', monospace;color:#1B2430;background:#EEF0F3;padding:14px 18px;border-radius:10px">enableManagementApi = true</p>
+<p style="font-size:24px;color:#4A5563">No code: one config value</p>
+</div>
+</div>
+<aside>Three things in one integration. A plain HTTP service, the Claims API, with three resources. The processClaim workflow: five steps, of which two are the interesting ones, waiting for the bill event and asking a manager. Everything else is a database write. And the Workflow Management API, which ships with the runtime and is switched on by config. That is what the Approvals console talks to.</aside>
+</section>

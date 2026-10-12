@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · Northbridge</title>
+  <link rel="stylesheet" href="/shared/app.css">
+</head>
+<body>
+  <div class="signin">
+    <form id="signin">
+      <div class="brand"><span class="logo">N</span><span>Northbridge<small>Claims and approvals</small></span></div>
+      <h2>Sign in</h2>
+      <label for="email">Work email</label><input id="email" type="email" autocomplete="username">
+      <label for="password">Password</label><input id="password" type="password" autocomplete="current-password">
+      <button class="btn primary" type="submit">Sign in</button>
+      <div class="demo-users">Demo users, password <code>demo123</code>:<br>
+        <code>ann@example.com</code> employee<br><code>jane@example.com</code> manager</div>
+    </form>
+  </div>
+  <script type="module" src="/login/login.js"></script>
+</body>
+</html>

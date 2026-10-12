@@ -1,0 +1,23 @@
+<section id="wiring" data-transition="fade" style="background:#F4F2ED;color:#1B2430;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;gap:40px">
+<h2 style="font-size:64px;font-weight:600;line-height:1.1;color:#1B2430">How the apps plug in</h2>
+<div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:40px">
+<div style="display:flex;flex-direction:column;gap:18px;background:#FBFAF7;border:2px solid #D9D4C8;border-top:10px solid #2F5BD3;border-radius:18px;padding:40px">
+<p style="font-size:26px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#2F5BD3">Expenses · Ann</p>
+<h3 style="font-size:40px;font-weight:600;line-height:1.15;color:#1B2430">Talks to the Claims API we built</h3>
+<p style="font-size:26px;font-family:'JetBrains Mono', 'Courier New', monospace;color:#1B2430;background:#EEF0F3;padding:12px 18px;border-radius:10px">/api/claims → :9090/claims</p>
+<p style="font-size:28px;line-height:1.45;color:#4A5563"><b>POST /claims</b> sends the claim, with an id the app picks. That id becomes the workflow id.</p>
+<p style="font-size:28px;line-height:1.45;color:#4A5563"><b>POST /claims/{id}/bill</b> sends the bill's link to the waiting workflow.</p>
+<p style="font-size:28px;line-height:1.45;color:#4A5563"><b>GET /claims</b> reads the status the workflow records at each step.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:18px;background:#FBFAF7;border:2px solid #D9D4C8;border-top:10px solid #1F7A6D;border-radius:18px;padding:40px">
+<p style="font-size:26px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1F7A6D">Approvals · Jane</p>
+<h3 style="font-size:40px;font-weight:600;line-height:1.15;color:#1B2430">Talks to the built-in Management API</h3>
+<p style="font-size:26px;font-family:'JetBrains Mono', 'Courier New', monospace;color:#1B2430;background:#EEF0F3;padding:12px 18px;border-radius:10px">/api/workflow → :8234/workflow</p>
+<p style="font-size:28px;line-height:1.45;color:#4A5563">Each call says who is asking: <b>x-user-id</b> and <b>x-user-roles: MANAGER</b>.</p>
+<p style="font-size:28px;line-height:1.45;color:#4A5563"><b>GET /human-tasks</b> lists only the tasks Jane may act on, with the claim and bill link.</p>
+<p style="font-size:28px;line-height:1.45;color:#4A5563"><b>POST /human-tasks/{id}/complete</b> sends her decision; the workflow carries on.</p>
+</div>
+</div>
+<p style="font-size:30px;line-height:1.4;color:#4A5563">Neither app knows the steps of the process. Change the workflow, and the apps keep working.</p>
+<aside>The apps are wired to two APIs. Expenses calls the Claims API we built: submit with an id it picks, which becomes the workflow id; send the bill to that id; read the status. Approvals calls the Workflow Management API that ships with the runtime, saying who is asking with two headers. It only ever sees the tasks that person may act on, and completing one hands the decision back to the workflow. Neither app knows the steps, so the process can change without touching them.</aside>
+</section>

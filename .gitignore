@@ -1,0 +1,4 @@
+# Build output and local configuration
+target/
+Config.toml
+.DS_Store

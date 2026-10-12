@@ -7,6 +7,7 @@ import { signedInUser, topbar, wireSignOut, toast, showBill, esc, money, when, n
 const APP = { name: 'Approvals', icon: '✓', context: 'admin' };
 let user = null;
 let seen = null;
+const done = new Set();
 
 async function api(path, init = {}) {
   const res = await fetch(`/api/workflow/${path}`, { ...init,
@@ -34,7 +35,8 @@ async function refresh() {
   if (!user || !user.roleList.includes('MANAGER')) return;
   try {
     const page = await api('human-tasks?status=PENDING&limit=50');
-    const list = Array.isArray(page) ? page : page.items || page.tasks || [];
+    // A completed task can stay PENDING in the listing for a moment; don't bring it back.
+    const list = (Array.isArray(page) ? page : page.items || page.tasks || []).filter((t) => !done.has(t.taskId));
     const tasks = await Promise.all(list.map((t) => api(`human-tasks/${encodeURIComponent(t.taskId)}`)));
     render(tasks);
   } catch (e) {
@@ -84,8 +86,9 @@ async function decide(button) {
     await api(`human-tasks/${encodeURIComponent(taskId)}/complete`, { method: 'POST',
       body: JSON.stringify({ result: { approved, comment } }) });
     toast(`${card.dataset.claim} ${approved ? 'approved' : 'rejected'}`, approved ? 'good' : 'bad');
+    done.add(taskId);
     card.remove();
-    document.getElementById('tasks').dataset.signature = '';
+    document.getElementById('tasks').dataset.signature = 'stale';
     refresh();
   } catch (e) {
     toast('The decision could not be saved', 'bad');

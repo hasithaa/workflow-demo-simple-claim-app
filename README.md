@@ -25,7 +25,8 @@ The first start builds the integration and downloads ICP 2.1.0, so it takes a fe
 
 The ICP console is at **https://localhost:9446** (`admin` / `admin`; accept the self-signed certificate).
 
-To start over with empty data: `docker compose down -v`.
+To start over with empty data: `docker compose down -v`. To keep the stack but clear the demo claims (stops running
+workflows, removes new claims and bills): `scripts/reset.sh`.
 
 ## Try it
 
@@ -65,8 +66,9 @@ workflow, the activities, the HTTP service and the connection.
 
 - `processClaim` records the claim, waits for the bill (`Await Data`), attaches it, asks a `MANAGER` (`Human Task`),
   and records the decision.
-- The Claims API (`/claims`) starts the workflow with `runWithId`, so the claim id is the workflow id; the bill route
-  sends the bill to that id (`Send Data Event`); `GET /claims` lists an employee's claims.
+- The Claims API (`/claims`) starts the workflow with `Run Workflow` and returns its id; the first activity saves that
+  id on the claim (`check ctx.getWorkflowId()`). The bill route sends the bill to that id (`Send Data Event`);
+  `GET /claims` lists an employee's claims with their workflow ids.
 - The Workflow Management API is switched on (`Enable Workflow Management REST API` on the overview), and ICP
   monitoring is enabled (the `wso2/icp.runtime.bridge` import).
 

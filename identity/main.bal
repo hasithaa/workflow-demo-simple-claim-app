@@ -77,7 +77,8 @@ function init() returns error? {
 
 service / on new http:Listener(port) {
 
-    resource function post login(@http:Payload Credentials credentials) returns http:Response|http:Unauthorized|error {
+    resource function post login(http:Request request, @http:Payload Credentials credentials)
+            returns http:Response|http:Unauthorized|error {
         StoredUser|error stored = db->queryRow(`SELECT username, name, title, roles, password_hash FROM users
             WHERE username = ${credentials.username}`);
         if stored is error || !check crypto:verifyBcrypt(credentials.password, stored.password_hash) {
@@ -90,7 +91,7 @@ service / on new http:Listener(port) {
         }
         http:Response response = new;
         response.setJsonPayload(user);
-        response.addCookie(new (SESSION_COOKIE, token, path = "/", httpOnly = true));
+        response.addHeader("Set-Cookie", sessionCookie(request, token));
         return response;
     }
 
@@ -102,7 +103,7 @@ service / on new http:Listener(port) {
             }
         }
         http:Response response = new;
-        response.addCookie(new (SESSION_COOKIE, "", path = "/", httpOnly = true, maxAge = 0));
+        response.addHeader("Set-Cookie", sessionCookie(request, "", expire = true));
         return response;
     }
 
@@ -122,6 +123,21 @@ service / on new http:Listener(port) {
         response.setHeader("x-user-roles", user.roles);
         return response;
     }
+}
+
+// The session cookie. On a loopback host (localhost, 127.0.0.1) it is also SameSite=None and Secure, which browsers
+// accept over plain http there, so the apps also work inside frames of another local page (as in the demo recording,
+// which shows two users side by side). Any other host keeps the browser default (Lax).
+isolated function sessionCookie(http:Request request, string token, boolean expire = false) returns string {
+    string cookie = string `${SESSION_COOKIE}=${token}; Path=/; HttpOnly`;
+    if expire {
+        cookie += "; Max-Age=0";
+    }
+    string|http:HeaderNotFoundError host = request.getHeader("x-forwarded-host");
+    if host is string && (host.startsWith("localhost") || host.startsWith("127.0.0.1")) {
+        cookie += "; SameSite=None; Secure";
+    }
+    return cookie;
 }
 
 isolated function sessionToken(http:Request request) returns string? {

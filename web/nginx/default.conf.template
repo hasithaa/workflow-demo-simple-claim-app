@@ -23,6 +23,7 @@ server {
 
     # Sign-in, sign-out and the current user.
     location /auth/ {
+        proxy_set_header X-Forwarded-Host $host;
         rewrite ^/auth/(.*)$ /$1 break;
         proxy_pass http://$identity:9095;
     }

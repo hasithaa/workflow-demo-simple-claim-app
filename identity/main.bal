@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Username and password sign-in for the demo apps. The gateway (nginx) asks GET /session on every API call and
-// forwards the signed-in user to the claims integration and the Workflow Management API.
+// A simple username and password sign-in service for the demo apps, not an identity provider. The gateway (nginx)
+// asks GET /session on every API call and forwards the signed-in user to the claims integration and the Workflow
+// Management API.
 
 import ballerina/crypto;
 import ballerina/http;

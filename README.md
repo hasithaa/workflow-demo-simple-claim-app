@@ -4,8 +4,6 @@ An expense claim approval, run by a durable workflow built in WSO2 Integrator. A
 her for the bill, then asks her manager, Jane, to approve. Nothing polls, nothing is lost on a restart, and the apps
 around it hold no process logic.
 
-![Solution architecture](docs/slides/04-architecture.png)
-
 Everything runs in one Docker Compose stack: the web app, the integration, sign-in, the WSO2 Integration Control
 Plane (ICP), Temporal and MySQL.
 
@@ -45,19 +43,20 @@ To start over with empty data: `docker compose down -v`.
 |---|---|---|
 | `web` | nginx: the two contexts (`/claims/`, `/admin/`), sign-in (`/login/`), bill storage, and the gateway to the APIs | 8080 |
 | `integration` | The claims integration from `integration/`: the Claims API, the `processClaim` workflow, and the Workflow Management API | internal |
-| `identity` | Username and password sign-in (`identity/`) | internal |
-| `icp` | WSO2 Integration Control Plane 2.1.0, from its GitHub release | 9446 |
+| `identity` | A simple username and password sign-in service for the demo (`identity/`) | internal |
+| `icp` | WSO2 Integration Control Plane 2.1.0, built from its GitHub release zip | 9446 |
 | `icp-seed` | Mints the secret the integration registers with ICP, on first start | |
 | `temporal` | The durable workflow runtime | 7233 |
 | `mysql` | Claims, users, ICP and Temporal data (`db/` runs on first start) | 3306 |
 
 ### How sign-in works
 
-The identity service checks the password (stored as a bcrypt hash) and sets a session cookie. On every API and file
+Sign-in is a simple service written for this demo, not an identity provider. It checks the password (stored as a
+bcrypt hash) and sets a session cookie. On every API and file
 call, nginx asks the identity service who the session belongs to and forwards that user to the integration as
 `x-user-id` and `x-user-roles`, replacing anything the browser sent. The apps never handle a token, and the Workflow
 Management API lists only the tasks the signed-in user may act on (Jane's `MANAGER` role). The users and passwords are
-in `config/identity.toml`. This is demo-grade sign-in: use a real identity provider for anything beyond a demo.
+in `config/identity.toml`. For anything beyond a demo, put a real identity provider in its place.
 
 ## The integration
 
@@ -95,9 +94,3 @@ enableBasicAuth = false
 ```
 
 and click **Run**. (Leave ICP monitoring off in the Integrator for this, or point it at https://localhost:9446.)
-
-## Docs
-
-- [Article](docs/article/article.md): *Workflows that wait for people*, the use case and the concepts.
-- [Slides](docs/slides/): 4K PNGs for the video and the article; sources in `docs/slides/source/`.
-- [Voice-over script](docs/voiceover.md) for the demo video.

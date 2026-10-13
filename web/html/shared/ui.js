@@ -8,6 +8,11 @@ export const initials = (name) => name.split(' ').map((w) => w[0]).join('');
 const NAMES = { 'ann@example.com': 'Ann Lee', 'jane@example.com': 'Jane Moreno' };
 export const nameOf = (email) => NAMES[email] || email;
 
+// A claim's id is its workflow's id; people see a short form of it.
+export function claimNo(id) {
+  return `CLM-${String(id).replace(/-/g, '').slice(-6).toUpperCase()}`;
+}
+
 export function when(iso) {
   const d = new Date(iso);
   const mins = Math.round((Date.now() - d.getTime()) / 60000);

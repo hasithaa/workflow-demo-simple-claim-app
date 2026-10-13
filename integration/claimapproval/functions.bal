@@ -2,8 +2,8 @@ import ballerina/sql;
 import ballerina/workflow;
 
 @workflow:Activity
-function createClaim(Claim claim, string workflowId) returns error? {
-    sql:ExecutionResult sqlExecutionresult = check claimsDb->execute(`INSERT INTO claims (claim_id, workflow_id, employee, description, amount, status) VALUES (${claim.claimId}, ${workflowId}, ${claim.employee}, ${claim.description}, ${claim.amount}, 'BILL_REQUIRED')`);
+function createClaim(string claimId, Claim claim) returns error? {
+    sql:ExecutionResult sqlExecutionresult = check claimsDb->execute(`INSERT INTO claims (claim_id, employee, description, amount, status) VALUES (${claimId}, ${claim.employee}, ${claim.description}, ${claim.amount}, 'BILL_REQUIRED')`);
 }
 
 @workflow:Activity

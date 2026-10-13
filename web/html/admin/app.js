@@ -2,7 +2,7 @@
 // runtime: it lists the human tasks the signed-in manager may act on and completes them. The gateway tells the API
 // who is asking, from the session, so the app sends no identity of its own.
 
-import { signedInUser, topbar, wireSignOut, toast, showBill, esc, money, when, nameOf } from '/shared/ui.js';
+import { signedInUser, topbar, wireSignOut, toast, showBill, esc, money, when, nameOf, claimNo } from '/shared/ui.js';
 
 const APP = { name: 'Approvals', icon: '✓', context: 'admin' };
 let user = null;
@@ -66,7 +66,7 @@ function card(t, fresh) {
       <div class="meta" style="margin:0 0 8px">${esc(t.title)} · ${when(t.startTime)}</div>
       <div class="row">${bill}
         <div style="flex:1;min-width:0"><div class="title">${esc(c.description)}</div>
-          <div class="meta">${esc(nameOf(c.employee))} · ${esc(c.claimId)}</div>
+          <div class="meta">${esc(nameOf(c.employee))} · ${esc(claimNo(c.claimId))}</div>
           ${c.billUrl ? `<button class="link" style="padding:4px 0" data-view="${esc(c.billUrl)}" data-name="${esc(c.billName)}">📄 ${esc(c.billName)}</button>` : ''}</div>
         <div class="amount">${money(c.amount)}</div></div>
       <label for="comment-${esc(t.taskId)}">Comment for ${esc(nameOf(c.employee).split(' ')[0])}</label>
@@ -85,7 +85,7 @@ async function decide(button) {
   try {
     await api(`human-tasks/${encodeURIComponent(taskId)}/complete`, { method: 'POST',
       body: JSON.stringify({ result: { approved, comment } }) });
-    toast(`${card.dataset.claim} ${approved ? 'approved' : 'rejected'}`, approved ? 'good' : 'bad');
+    toast(`${claimNo(card.dataset.claim)} ${approved ? 'approved' : 'rejected'}`, approved ? 'good' : 'bad');
     done.add(taskId);
     card.remove();
     document.getElementById('tasks').dataset.signature = 'stale';

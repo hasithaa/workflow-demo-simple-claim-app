@@ -1,6 +1,5 @@
 
 type Claim record {|
-    string claimId;
     string employee;
     string description;
     decimal amount;

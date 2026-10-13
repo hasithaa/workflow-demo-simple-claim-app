@@ -66,9 +66,10 @@ workflow, the activities, the HTTP service and the connection.
 
 - `processClaim` records the claim, waits for the bill (`Await Data`), attaches it, asks a `MANAGER` (`Human Task`),
   and records the decision.
-- The Claims API (`/claims`) starts the workflow with `Run Workflow` and returns its id; the first activity saves that
-  id on the claim (`check ctx.getWorkflowId()`). The bill route sends the bill to that id (`Send Data Event`);
-  `GET /claims` lists an employee's claims with their workflow ids.
+- A claim's id is its workflow's id. The Claims API (`/claims`) starts the workflow with `Run Workflow` and returns
+  that id; the workflow reads it (`Workflow ID`) and records the claim under it. The bill route sends the bill to the
+  claim's workflow by that id (`Send Data Event`); `GET /claims` lists an employee's claims. The apps show a short
+  form of the id, such as `CLM-020417`.
 - The Workflow Management API is switched on (`Enable Workflow Management REST API` on the overview), and ICP
   monitoring is enabled (the `wso2/icp.runtime.bridge` import).
 

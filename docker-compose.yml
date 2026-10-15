@@ -1,9 +1,9 @@
 # The claim approval demo in one stack: `docker compose up -d --build`, then open http://localhost:8080.
 #
-#   web          the claims and admin contexts, sign-in and bill storage (nginx)   :8080
+#   web          the claims and admin contexts and bill storage (nginx)            :8080
 #   integration  the claims integration built in WSO2 Integrator (Claims API, workflow, Management API)
-#   identity     username and password sign-in for the two contexts
-#   icp          WSO2 Integration Control Plane 2.1.0                               :9446 (admin / admin)
+#   thunder      Thunder, the identity provider: sign-in for the apps and the ICP console   :8095
+#   icp          WSO2 Integration Control Plane 2.1.0                               :9446 (SSO, or admin / admin)
 #   temporal     the durable workflow runtime                                       :7233
 #   mysql        claims, users, ICP and Temporal data                               :3306
 #
@@ -49,6 +49,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      thunder:
+        condition: service_started
 
   # Mints the secret the integration registers with ICP; it exists only once ICP is running, so it cannot be baked in.
   icp-seed:
@@ -61,18 +63,29 @@ services:
     depends_on:
       - icp
 
-  identity:
-    build:
-      context: .
-      dockerfile: docker/ballerina.Dockerfile
-      args:
-        SRC: identity
+  # Thunder is the identity provider for the apps and the ICP console. First boot runs setup.sh once, then serves
+  # the declared users, groups and OAuth clients (seed/thunder). The TLS pair is the demo's own (localhost, thunder).
+  # Browsers reach it at https://localhost:8095 (its public URL and token issuer); containers at https://thunder:8090.
+  thunder:
+    image: ghcr.io/thunder-id/thunderid:1.0.0
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        sed -i -e 's|public_url: "https://localhost:8090"|public_url: "https://localhost:8095"|' \
+               -e 's|- "https://localhost:8090"|- "https://localhost:8095"|' deployment.yaml
+        [ -f config/certs/crypto.key ] || ./setup.sh
+        exec ./start.sh /opt/demo/thunder-resources.yaml
+    environment:
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: admin12345
     volumes:
-      - ./config/identity.toml:/app/config/Config.toml:ro
-    restart: unless-stopped
-    depends_on:
-      mysql:
-        condition: service_healthy
+      - thunder-config:/opt/thunderid/config
+      - thunder-db:/opt/thunderid/database
+      - ./seed/thunder/thunder-resources.yaml:/opt/demo/thunder-resources.yaml:ro
+      - ./seed/thunder-tls/server.cert:/opt/thunderid/config/certs/server.cert:ro
+      - ./seed/thunder-tls/server.key:/opt/thunderid/config/certs/server.key:ro
+    ports:
+      - "8095:8090"
 
   integration:
     build:
@@ -97,12 +110,13 @@ services:
         condition: service_started
       icp-seed:
         condition: service_completed_successfully
+      web:
+        condition: service_started
 
   web:
     image: nginx:1.27-alpine
     environment:
       INTEGRATION_HOST: ${INTEGRATION_HOST:-integration}
-      IDENTITY_HOST: ${IDENTITY_HOST:-identity}
     ports:
       - "8080:8080"
     volumes:
@@ -112,9 +126,11 @@ services:
       - ./web/seed-files:/seed-files:ro
       - bills:/data/files
     depends_on:
-      - identity
+      - thunder
 
 volumes:
+  thunder-config:
+  thunder-db:
   mysql-data:
   bills:
   icp-secrets:

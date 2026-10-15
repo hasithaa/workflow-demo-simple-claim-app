@@ -2,6 +2,7 @@
 // Every status comes from the claims integration; the app holds no process logic.
 
 import { signedInUser, topbar, wireSignOut, toast, dialog, showBill, esc, money, when, claimNo, STATUS } from '/shared/ui.js';
+import { api } from '/shared/auth.js';
 
 const APP = { name: 'Expenses', icon: '$', context: 'claims' };
 let user = null;
@@ -23,7 +24,7 @@ async function start() {
 async function refresh() {
   if (!user) return;
   try {
-    const res = await fetch(`/api/claims?employee=${encodeURIComponent(user.username)}`);
+    const res = await api(`/api/claims?employee=${encodeURIComponent(user.username)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     render(await res.json());
   } catch (e) {
@@ -91,7 +92,7 @@ function newClaim() {
     if (!description || !(amount > 0)) return;
     e.submitter.disabled = true;
     const claim = { employee: user.username, description, amount };
-    const res = await fetch('/api/claims', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    const res = await api('/api/claims', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(claim) });
     if (!res.ok) {
       toast('The claim could not be submitted', 'bad');
@@ -130,8 +131,8 @@ function uploadBill(claimId) {
     const file = input.files[0];
     e.target.disabled = true;
     const fileUrl = `/files/${encodeURIComponent(claimId)}/${encodeURIComponent(file.name)}`;
-    const stored = await fetch(fileUrl, { method: 'PUT', body: file });
-    const sent = stored.ok && await fetch(`/api/claims/${encodeURIComponent(claimId)}/bill`, { method: 'POST',
+    const stored = await api(fileUrl, { method: 'PUT', body: file });
+    const sent = stored.ok && await api(`/api/claims/${encodeURIComponent(claimId)}/bill`, { method: 'POST',
       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fileName: file.name, fileUrl }) });
     if (!sent || !sent.ok) {
       toast('The bill could not be uploaded', 'bad');

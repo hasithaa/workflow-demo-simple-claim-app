@@ -2,7 +2,8 @@
 // runtime: it lists the human tasks the signed-in manager may act on and completes them. The gateway tells the API
 // who is asking, from the session, so the app sends no identity of its own.
 
-import { signedInUser, topbar, wireSignOut, toast, showBill, esc, money, when, nameOf, claimNo } from '/shared/ui.js';
+import { signedInUser, topbar, wireSignOut, toast, showBill, loadThumbnails, esc, money, when, nameOf, claimNo } from '/shared/ui.js';
+import { api as authed } from '/shared/auth.js';
 
 const APP = { name: 'Approvals', icon: '✓', context: 'admin' };
 let user = null;
@@ -10,7 +11,7 @@ let seen = null;
 const done = new Set();
 
 async function api(path, init = {}) {
-  const res = await fetch(`/api/workflow/${path}`, { ...init,
+  const res = await authed(`/api/workflow/${path}`, { ...init,
     headers: { 'Content-Type': 'application/json', ...(init.headers || {}) } });
   if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
   return res.status === 204 ? null : res.json();
@@ -56,12 +57,13 @@ function render(tasks) {
   box.innerHTML = tasks.length ? tasks.map((t) => card(t, before && !before.has(t.taskId))).join('')
     : '<div class="empty"><div class="big">☕</div>You are all caught up.<br>New requests appear here.</div>';
   box.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => showBill(b.dataset.view, b.dataset.name)));
+  loadThumbnails(box);
   box.querySelectorAll('[data-decide]').forEach((b) => b.addEventListener('click', () => decide(b)));
 }
 
 function card(t, fresh) {
   const c = t.taskInput || {};
-  const bill = c.billUrl ? `<img class="thumb" src="${esc(c.billUrl)}" alt="bill" data-view="${esc(c.billUrl)}" data-name="${esc(c.billName)}">` : '';
+  const bill = c.billUrl ? `<img class="thumb" data-file="${esc(c.billUrl)}" alt="bill" data-view="${esc(c.billUrl)}" data-name="${esc(c.billName)}">` : '';
   return `<div class="card${fresh ? ' fresh' : ''}" data-task="${esc(t.taskId)}" data-claim="${esc(c.claimId)}">
       <div class="meta" style="margin:0 0 8px">${esc(t.title)} · ${when(t.startTime)}</div>
       <div class="row">${bill}

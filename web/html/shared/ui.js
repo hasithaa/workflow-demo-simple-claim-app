@@ -1,5 +1,7 @@
 // Helpers shared by the claims and admin contexts: the signed-in user, rendering, toasts and dialogs.
 
+import { claims, signIn, signOut, fileUrl } from '/shared/auth.js';
+
 export const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 export const money = (n) => Number(n).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 export const initials = (name) => name.split(' ').map((w) => w[0]).join('');
@@ -22,16 +24,21 @@ export function when(iso) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-// The signed-in user from the identity service, or a trip to the sign-in page.
+// Job titles for the people the apps show; anyone else shows their roles.
+const TITLES = { 'ann@example.com': 'Sales executive', 'jane@example.com': 'Sales manager' };
+
+// The signed-in user from the token's claims, or a trip to Thunder to sign in.
 export async function signedInUser() {
-  const res = await fetch('/auth/me', { cache: 'no-store' });
-  if (res.ok) {
-    const user = await res.json();
-    user.roleList = user.roles.split(',').map((r) => r.trim());
-    return user;
-  }
-  location.href = `/login/?next=${encodeURIComponent(location.pathname)}`;
-  return new Promise(() => {});
+  const c = claims();
+  if (!c) return signIn();
+  const groups = Array.isArray(c.groups) ? c.groups : String(c.groups || '').split(',').filter(Boolean);
+  const username = c.username || c.email || c.sub;
+  return {
+    username,
+    name: [c.given_name, c.family_name].filter(Boolean).join(' ') || nameOf(username),
+    title: TITLES[username] || groups.join(', '),
+    roleList: groups,
+  };
 }
 
 export function topbar(app, user) {
@@ -48,10 +55,7 @@ export function topbar(app, user) {
 }
 
 export function wireSignOut() {
-  document.getElementById('signout').addEventListener('click', async () => {
-    await fetch('/auth/logout', { method: 'POST' });
-    location.href = `/login/?next=${encodeURIComponent(location.pathname)}`;
-  });
+  document.getElementById('signout').addEventListener('click', signOut);
 }
 
 export function toast(message, kind = '') {
@@ -77,10 +81,16 @@ export function dialog(html, className = '') {
   return back;
 }
 
-export function showBill(url, name) {
+export async function showBill(url, name) {
   const box = dialog(`<h3>${esc(name)}</h3><div class="meta">Bill attached to the claim</div>
-    <img src="${esc(url)}" alt="${esc(name)}"><div class="actions"><button class="btn" data-close>Close</button></div>`, 'lightbox');
+    <img alt="${esc(name)}"><div class="actions"><button class="btn" data-close>Close</button></div>`, 'lightbox');
   box.querySelector('[data-close]').addEventListener('click', () => box.remove());
+  box.querySelector('img').src = await fileUrl(url);
+}
+
+// Fills <img data-file="..."> thumbnails; bill storage needs the token, which an <img> cannot send.
+export function loadThumbnails(root) {
+  root.querySelectorAll('img[data-file]').forEach(async (img) => { img.src = await fileUrl(img.dataset.file); });
 }
 
 export const STATUS = {

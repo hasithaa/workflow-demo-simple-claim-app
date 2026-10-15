@@ -99,6 +99,7 @@ resource_type: application
 id: app-icp-console
 name: Integration Control Plane
 type: fullstack
+logoUrl: "http://localhost:8080/shared/icp-logo.svg"
 ouId: 01900000-0000-7000-8000-000000000001
 authFlowHandle: default-flow
 inboundAuthConfig:

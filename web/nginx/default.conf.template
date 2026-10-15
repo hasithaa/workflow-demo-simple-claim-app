@@ -46,6 +46,7 @@ server {
         proxy_set_header Authorization "";
         proxy_set_header x-user-id "";
         proxy_set_header x-user-roles "";
+        proxy_set_header X-API-Key "";
         rewrite ^/api(/workflow/.*)$ $1 break;
         proxy_pass http://$integration:8234;
     }

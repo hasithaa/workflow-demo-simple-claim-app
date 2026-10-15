@@ -1,11 +1,13 @@
 -- Single sign-on to the ICP console with Thunder: identity-provider groups -> console groups -> roles -> permissions.
 -- Thunder's MANAGER group sees the workflows and their runs and decides human tasks; EMPLOYEE sees the runs only.
+-- The roles carry the same names as the groups: the console forwards role names to the Workflow Management API,
+-- and the approval task is addressed to MANAGER.
 -- The issuer must string-equal the token's `iss`, Thunder's browser-facing address. Fixed IDs keep this idempotent.
 USE icp_db;
 
 INSERT IGNORE INTO roles_v2 (role_id, role_name, org_id, description) VALUES
-    ('c1000000-0000-4000-8000-000000000001', 'Claims Manager', 1, 'Watches claim workflows and decides their tasks'),
-    ('c1000000-0000-4000-8000-000000000002', 'Claims Viewer', 1, 'Watches claim workflows');
+    ('c1000000-0000-4000-8000-000000000001', 'MANAGER', 1, 'Watches claim workflows and decides their tasks'),
+    ('c1000000-0000-4000-8000-000000000002', 'EMPLOYEE', 1, 'Watches claim workflows');
 
 INSERT IGNORE INTO user_groups (group_id, group_name, org_uuid, description) VALUES
     ('c2000000-0000-4000-8000-000000000001', 'Managers', 1, 'Identity provider group MANAGER'),

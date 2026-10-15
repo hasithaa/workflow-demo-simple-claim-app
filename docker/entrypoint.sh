@@ -18,6 +18,13 @@ environment = "${ICP_ENVIRONMENT:-dev}"
 runtimeHostUrl = "${ICP_RUNTIME_HOST_URL:-http://localhost}"
 TOML
     FILES="$FILES:/tmp/icp.toml"
+    # The ICP console reaches the Workflow Management API with the same secret as an API key (its human-task pages);
+    # add it to the API's settings in a copy of the mounted Config.toml.
+    if grep -q '^\[ballerina.workflow.management.rest\]' /app/config/Config.toml; then
+        sed "/^\[ballerina.workflow.management.rest\]/a enableApiKey = true\\
+apiKeyValue = \"$(cat "$ICP_SECRET_FILE")\"" /app/config/Config.toml > /tmp/Config.toml
+        FILES="/tmp/Config.toml:/tmp/icp.toml"
+    fi
 fi
 
 export BAL_CONFIG_FILES="$FILES"

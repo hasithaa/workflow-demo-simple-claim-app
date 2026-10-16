@@ -6,6 +6,10 @@ An expense claim approval, run by a durable workflow built in WSO2 Integrator. A
 her for the bill, then asks her manager, Jane, to approve. Nothing polls, nothing is lost on a restart, and the apps
 around it hold no process logic.
 
+> 🎬 **Watch the video:** [Workflows That Wait for People](https://youtu.be/_b84Ndbk1H8) (15 min): the use case, the
+> solution, and the full build in WSO2 Integrator.
+> 📖 **Read the article:** [Workflows That Wait for People](https://hasithaaravinda.medium.com/workflows-that-wait-for-people-8ac3b5fc3635) on Medium: the ideas behind it.
+
 Everything runs in one Docker Compose stack: the web app, the integration, sign-in, the WSO2 Integration Control
 Plane (ICP), Temporal and MySQL.
 

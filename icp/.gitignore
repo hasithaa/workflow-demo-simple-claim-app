@@ -1,3 +1,0 @@
-# A locally provided ICP release zip (see Dockerfile).
-*.zip
-*.zip.sha256

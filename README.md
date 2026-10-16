@@ -32,7 +32,7 @@ or change the integration.
 docker compose up -d --build
 ```
 
-The first start builds the integration and downloads ICP 2.1.0, so it takes a few minutes. When
+The first start builds the integration and pulls the images, so it takes a few minutes. When
 `docker compose ps` shows everything running, open **http://localhost:8080**.
 
 Sign-in goes through **Thunder**, the identity provider, at https://localhost:8095. The first time, open
@@ -74,7 +74,7 @@ with the workflow integration. Everything runs in one Docker Compose stack:
 | `web` | nginx: the two contexts (`/claims/`, `/admin/`), bill storage, and the gateway to the APIs | 8080 |
 | `integration` | The claims integration from `integration/`: the Claims API, the `processClaim` workflow, and the Workflow Management API | internal |
 | `thunder` | Thunder 1.0.1, the identity provider: sign-in for the apps and the ICP console (`seed/thunder/`) | 8095 |
-| `icp` | WSO2 Integration Control Plane 2.1.0, built from its GitHub release zip | 9446 |
+| `icp` | WSO2 Integration Control Plane 2.1.0 (`wso2/wso2-integration-control-plane`), with `icp/deployment.toml` | 9446 |
 | `icp-seed` | Mints the secret the integration registers with ICP, on first start | |
 | `temporal` | Temporal 1.29.7, the durable workflow runtime | 7233 |
 | `mysql` | MySQL 8.4: claims, ICP and Temporal data (`db/` runs on first start) | 3306 |

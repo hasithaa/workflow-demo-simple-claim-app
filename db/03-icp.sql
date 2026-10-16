@@ -1,5 +1,5 @@
 -- From wso2-integration-control-plane-2.1.0/dbscripts/mysql_init.sql (Apache License 2.0), run in icp_db.
--- Update together with ICP_VERSION in icp/Dockerfile.
+-- Update together with the ICP image version in docker-compose.yml.
 USE icp_db;
 
 -- ============================================================================

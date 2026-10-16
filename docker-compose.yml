@@ -43,7 +43,10 @@ services:
         condition: service_healthy
 
   icp:
-    build: ./icp
+    image: wso2/wso2-integration-control-plane:2.1.0
+    volumes:
+      # The image copies the config volume over its install at start.
+      - ./icp/deployment.toml:/home/wso2carbon/wso2-config-volume/conf/deployment.toml:ro
     ports:
       - "9446:9446"
     depends_on:

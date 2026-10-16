@@ -1,6 +1,6 @@
-# Builds one Ballerina package with the Ballerina 2201.14.0 toolchain and runs it on Java 25.
+# Builds one Ballerina package with the Ballerina 2201.14.1 toolchain and runs it on Java 25.
 #   SRC: the source folder (a package, or a workspace)   PKG: the package inside SRC to build
-FROM ballerina/ballerina:2201.14.0 AS build
+FROM ballerina/ballerina:2201.14.1 AS build
 ARG SRC
 ARG PKG=.
 USER root

@@ -67,7 +67,7 @@ services:
   # the declared users, groups and OAuth clients (seed/thunder). The TLS pair is the demo's own (localhost, thunder).
   # Browsers reach it at https://localhost:8095 (its public URL and token issuer); containers at https://thunder:8090.
   thunder:
-    image: ghcr.io/thunder-id/thunderid:1.0.0
+    image: ghcr.io/thunder-id/thunderid:1.0.1
     entrypoint: ["sh", "-c"]
     command:
       - |
@@ -114,7 +114,7 @@ services:
         condition: service_started
 
   web:
-    image: nginx:1.27-alpine
+    image: nginx:1.30-alpine
     environment:
       INTEGRATION_HOST: ${INTEGRATION_HOST:-integration}
     ports:

@@ -9,7 +9,8 @@ Plane (ICP), Temporal and MySQL.
 
 ## Run it
 
-You need Docker with Compose, and about 6 GB of memory for Docker.
+All you need is Docker with Compose, with about 6 GB of memory for Docker. WSO2 Integrator is only needed to open
+or change the integration.
 
 ```sh
 docker compose up -d --build
@@ -49,11 +50,25 @@ workflows, removes new claims and bills): `scripts/reset.sh`.
 |---|---|---|
 | `web` | nginx: the two contexts (`/claims/`, `/admin/`), bill storage, and the gateway to the APIs | 8080 |
 | `integration` | The claims integration from `integration/`: the Claims API, the `processClaim` workflow, and the Workflow Management API | internal |
-| `thunder` | Thunder 1.0.0, the identity provider: sign-in for the apps and the ICP console (`seed/thunder/`) | 8095 |
+| `thunder` | Thunder 1.0.1, the identity provider: sign-in for the apps and the ICP console (`seed/thunder/`) | 8095 |
 | `icp` | WSO2 Integration Control Plane 2.1.0, built from its GitHub release zip | 9446 |
 | `icp-seed` | Mints the secret the integration registers with ICP, on first start | |
-| `temporal` | The durable workflow runtime | 7233 |
-| `mysql` | Claims, ICP and Temporal data (`db/` runs on first start) | 3306 |
+| `temporal` | Temporal 1.29.7, the durable workflow runtime | 7233 |
+| `mysql` | MySQL 8.4: claims, ICP and Temporal data (`db/` runs on first start) | 3306 |
+
+### Versions
+
+| Component | Version |
+|---|---|
+| Ballerina (the integration's build) | 2201.14.1 |
+| `ballerina/workflow` | 1.0.0 |
+| WSO2 Integration Control Plane | 2.1.0 |
+| Thunder | 1.0.1 |
+| Temporal (`temporalio/auto-setup`) | 1.29.7 |
+| MySQL | 8.4 |
+| nginx | 1.30 |
+
+To open and run the integration in WSO2 Integrator, use a version that ships Ballerina 2201.14.1 or later.
 
 ### How sign-in works
 

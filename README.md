@@ -1,11 +1,22 @@
 # Workflows that wait for people: a claim approval demo
 
+![Workflows that wait for people](docs/images/title.png)
+
 An expense claim approval, run by a durable workflow built in WSO2 Integrator. Ann files a claim, the workflow asks
 her for the bill, then asks her manager, Jane, to approve. Nothing polls, nothing is lost on a restart, and the apps
 around it hold no process logic.
 
 Everything runs in one Docker Compose stack: the web app, the integration, sign-in, the WSO2 Integration Control
 Plane (ICP), Temporal and MySQL.
+
+## The use case
+
+![Ann files claims, Jane approves them; the process: submit, attach the bill, a manager decides, recorded](docs/images/use-case.png)
+
+Ann, a sales executive, files expense claims; Jane, her manager, approves them. Every claim follows the same steps,
+and days can pass between any two of them. That is a long-running workflow made of three building blocks:
+
+![Start: a request starts a workflow. Wait: it waits for an event. Human task: it asks a person, by role](docs/images/blocks.png)
 
 ## Run it
 
@@ -45,6 +56,13 @@ workflows, removes new claims and bills): `scripts/reset.sh`.
    steps and the human task are there.
 
 ## What is inside
+
+![Solution architecture: the app, the integration layer built in WSO2 Integrator, and the platform](docs/images/architecture.png)
+
+The app holds no process logic: Expenses calls the Claims API, Approvals calls the Workflow Management API that comes
+with the workflow integration. Everything runs in one Docker Compose stack:
+
+![The demo stack: browser, web gateway, Thunder, the integration, MySQL, Temporal and ICP](docs/images/stack.png)
 
 | Service | What it is | Port |
 |---|---|---|
@@ -87,6 +105,8 @@ The users, groups and OAuth clients are declared in `seed/thunder/thunder-resour
 ann@example.com` prints a token for scripts and API tests.
 
 ## The integration
+
+![One claim, one workflow, one ID: Run Workflow returns the ID, the first step reads it, Send Data delivers the bill to it](docs/images/claimid.png)
 
 `integration/` is the WSO2 Integrator project, as built in the designer: open the folder in WSO2 Integrator to see the
 workflow, the activities, the HTTP service and the connection.

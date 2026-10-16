@@ -18,6 +18,11 @@ and days can pass between any two of them. That is a long-running workflow made 
 
 ![Start: a request starts a workflow. Wait: it waits for an event. Human task: it asks a person, by role](docs/images/blocks.png)
 
+Here it is running: Ann in Expenses on the left, Jane in Approvals on the right. Ann files a claim and uploads the
+bill, Jane gets the approval task and approves, and Ann sees the result.
+
+![The demo running: Ann files a claim and uploads the bill, Jane approves it](docs/images/demo.gif)
+
 ## Run it
 
 All you need is Docker with Compose, with about 6 GB of memory for Docker. WSO2 Integrator is only needed to open

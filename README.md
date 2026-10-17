@@ -2,7 +2,7 @@
 
 ![Workflows that wait for people](docs/images/title.png)
 
-An expense claim approval, run by a durable workflow built in WSO2 Integrator. Ann files a claim, the workflow asks
+An expense claim approval, run by a durable workflow built in [WSO2 Integrator](https://wso2.com/integration-platform/integrator/). Ann files a claim, the workflow asks
 her for the bill, then asks her manager, Jane, to approve. Nothing polls, nothing is lost on a restart, and the apps
 around it hold no process logic.
 

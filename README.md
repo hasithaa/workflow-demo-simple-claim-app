@@ -88,7 +88,7 @@ with the workflow integration. Everything runs in one Docker Compose stack:
 | Component | Version |
 |---|---|
 | Ballerina (the integration's build) | 2201.14.1 |
-| `ballerina/workflow` | 1.0.0 |
+| `ballerina/workflow` | 1.0.2 |
 | WSO2 Integration Control Plane | 2.1.0 |
 | Thunder | 1.0.1 |
 | Temporal (`temporalio/auto-setup`) | 1.29.7 |
